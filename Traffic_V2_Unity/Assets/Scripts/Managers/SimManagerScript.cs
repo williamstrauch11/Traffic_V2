@@ -8,34 +8,53 @@ public class SimManagerScript : MonoBehaviour
 {
     // References 
     GameObject CarManager;
-    GameObject LaneManager;
+    LaneManagerScript LaneManager;
 
-    public event EventHandler OnSpawnFinished;
+    // Startup
+    private bool StartupFinished;
 
     private void Awake()
     {
 
         // Fill References
         CarManager = GameObject.Find("CarManager");
-        LaneManager = GameObject.Find("LaneManager");
+        LaneManager = new LaneManagerScript();
 
     }
     // Start is called before the first frame update
     private void Start()
     {
-        // Spawn Lanes
-        LaneManager.GetComponent<LaneManagerScript>().SpawnAllLanes();
 
-        // Spawn Cars
-        // CarManager.GetComponent<CarManagerScript>().SpawnAllCars();
+        StartCoroutine(Startup());
 
-        OnSpawnFinished?.Invoke(this, EventArgs.Empty);
     }
 
     // Update is called once per frame
     private void Update()
     {
-        
+        if (StartupFinished)
+        {
+     
+        }
     }
 
+    IEnumerator Startup()
+    {
+        StartupFinished = false;
+
+        // Spawn Lanes
+        LaneManager.SpawnAllLanes();
+
+        // Spawn Cars
+        // CarManager.GetComponent<CarManagerScript>().SpawnAllCars();
+
+        // Wait for next frame
+        yield return new WaitForEndOfFrame();
+
+        // Update Lane Visuals
+        LaneManager.UpdateLanes();
+
+        StartupFinished = true;
+
+    }
 }

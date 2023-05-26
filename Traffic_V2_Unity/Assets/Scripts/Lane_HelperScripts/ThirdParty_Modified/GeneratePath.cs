@@ -6,23 +6,28 @@ namespace PathCreation.Examples {
     [RequireComponent(typeof(PathCreator))]
     public class GeneratePath : MonoBehaviour {
 
+
+
         private bool closedLoop = true;
 
-        public int _nodeNum = 100;
-        public float _radius = 10f;
+        [SerializeField] private int NodeNum;
+        [SerializeField] private float Radius;
 
         private Vector2[] waypoints;
 
-        void Start () {
+        public void CreateLane(int _nodeNum, float _radius) {
 
-            waypoints = new Vector2[_nodeNum];
+            NodeNum = _nodeNum;
+            Radius = _radius;
 
-            for (int i = 0; i < _nodeNum; i++)
+            waypoints = new Vector2[NodeNum];
+
+            for (int i = 0; i < NodeNum; i++)
             {
-                float _circleAngle = ((float)i / _nodeNum) * 2 * Mathf.PI;
+                float _circleAngle = ((float)i / NodeNum) * 2 * Mathf.PI;
 
-                waypoints[i].x = _radius * Mathf.Cos(_circleAngle);
-                waypoints[i].y = _radius * Mathf.Sin(_circleAngle);
+                waypoints[i].x = Radius * Mathf.Cos(_circleAngle);
+                waypoints[i].y = Radius * Mathf.Sin(_circleAngle);
          
             }
 

@@ -22,7 +22,13 @@ namespace PathCreation.Examples {
         MeshRenderer meshRenderer;
         Mesh mesh;
 
-        public void PathUpdatedTwo()
+        public void ParameterUpdate(float _roadWidth, float _textureTiling)
+        {
+            roadWidth = _roadWidth;
+            textureTiling = _textureTiling;
+        }
+
+        public void PathUpdatedForced()
         {
             if (pathCreator != null)
             {

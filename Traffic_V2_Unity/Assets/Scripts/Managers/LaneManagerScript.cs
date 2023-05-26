@@ -3,28 +3,38 @@ using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 
-public class LaneManagerScript : MonoBehaviour
+public class LaneManagerScript
 {
 
     // References
-    GameObject[] LaneArray;
+    readonly GameObject[] LaneArray;
+    readonly GameObject LaneManager;
 
-    private void Awake()
+    readonly LaneFieldManager[] laneFieldManagers;
+
+
+    // Constructor 
+    public LaneManagerScript()
     {
         // Fill References
         LaneArray = new GameObject[RunSettings.LaneNum];
+        LaneManager = GameObject.Find("LaneManager");
+
+        laneFieldManagers = new LaneFieldManager[RunSettings.LaneNum];
     }
 
+
+    // Called from SimManagerScript upon startup
     public void SpawnAllLanes()
     {
         // Spawn each lane
         for (int i = 0; i < RunSettings.LaneNum; i++)
         {
-
             SpawnOneLane(i);
-
         }
     }
+
+
 
     private void SpawnOneLane(int LaneID)
     {
@@ -35,28 +45,29 @@ public class LaneManagerScript : MonoBehaviour
         // Name
         LaneArray[LaneID].name = "Lane_" + LaneID;
 
-        // Set as child
-        LaneArray[LaneID].transform.SetParent(gameObject.transform);
+        // Set as child of LaneManager GameObject
+        LaneArray[LaneID].transform.SetParent(LaneManager.transform);
 
-        StartCoroutine(LaneUpdater());
-        
+        // Fill lane settings
+        laneFieldManagers[LaneID] = new LaneFieldManager(LaneID);
+
+        // Generate Path
+        LaneArray[LaneID].GetComponent<PathCreation.Examples.GeneratePath>().CreateLane(laneFieldManagers[LaneID].NodeNum, laneFieldManagers[LaneID].Radius);
+
     }
 
+    // Called from SimManagerScript after a frame
     public void UpdateLanes()
     {
         // Update each lane to set visuals
         for (int i = 0; i < RunSettings.LaneNum; i++)
         {
+            // Update visual values
+            LaneArray[i].GetComponent<PathCreation.Examples.RoadMeshCreator>().ParameterUpdate(laneFieldManagers[i].RoadWidth, laneFieldManagers[i].TextureTiling);
 
-            LaneArray[i].GetComponent<PathCreation.Examples.LaneUpdater>().UpdatePath();
+            // Update visuals
+            LaneArray[i].GetComponent<PathCreation.Examples.RoadMeshCreator>().PathUpdatedForced();
 
         }
-    }
-
-    IEnumerator LaneUpdater()
-    {
-        yield return null;
-
-        UpdateLanes();
     }
 }
