@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LaneFieldManager
 {
+    public LaneFieldManagerVariables laneFieldManagerVariables = new LaneFieldManagerVariables();
+
     public int LaneNum { get; }
     public float Radius { get; }
     public float RoadWidth { get; }
@@ -30,10 +32,17 @@ public class LaneFieldManager
 
     public void SetParameters()
     {
-        _radius = 10;
-        _roadWidth = 0.5f;
-        _nodeNum = 101;
-        _textureTiling = 30;
+        _radius = (LaneNum * RunSettings.LANE_WIDTH * 2) + RunSettings.INNER_LANE_RADIUS;
+        _roadWidth = RunSettings.LANE_WIDTH;
+        _nodeNum = (int)Mathf.Round(_radius * laneFieldManagerVariables._nodeMultiplier);
+        _textureTiling = laneFieldManagerVariables._textureTilingMultiplier * _radius;
+        
     }
 
+}
+
+public class LaneFieldManagerVariables
+{
+    public float _nodeMultiplier { get; } = 0.5f; // Nodes per unit of radius
+    public float _textureTilingMultiplier { get; } = 0.2f;
 }

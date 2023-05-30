@@ -5,10 +5,18 @@ using UnityEngine;
 public static class RunSettings
 {
 
-    // Lane
-    public static int LaneNum { get; } = 1;
 
-    //Car Number
-    public static int CarNum { get; } = 15;
+    //Units of length are meters
+
+
+    // Lane
+    public static int LANENUM { get; } = 4;
+    public static int INNER_LANE_RADIUS { get; } = 100;
+    public static float LANE_WIDTH { get; } = 3.6576f;
+
+
+    //Car
+    public static int CARNUM { get; } = 15;
+    
 
 }

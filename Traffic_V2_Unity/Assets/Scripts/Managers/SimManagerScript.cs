@@ -7,8 +7,8 @@ using UnityEngine;
 public class SimManagerScript : MonoBehaviour
 {
     // References 
-    GameObject CarManager;
-    LaneManagerScript LaneManager;
+    CarManagerScript carManagerScript;
+    LaneManagerScript laneManagerScript;
 
     // Startup
     private bool StartupFinished;
@@ -17,8 +17,8 @@ public class SimManagerScript : MonoBehaviour
     {
 
         // Fill References
-        CarManager = GameObject.Find("CarManager");
-        LaneManager = new LaneManagerScript();
+        carManagerScript = new CarManagerScript();
+        laneManagerScript = new LaneManagerScript();
 
     }
     // Start is called before the first frame update
@@ -43,16 +43,16 @@ public class SimManagerScript : MonoBehaviour
         StartupFinished = false;
 
         // Spawn Lanes
-        LaneManager.SpawnAllLanes();
+        laneManagerScript.SpawnAllLanes();
 
         // Spawn Cars
-        // CarManager.GetComponent<CarManagerScript>().SpawnAllCars();
+        carManagerScript.SpawnAllCars();
 
         // Wait for next frame
         yield return new WaitForEndOfFrame();
 
-        // Update Lane Visuals
-        LaneManager.UpdateLanes();
+        // Update Lanes to clear visual issues
+        laneManagerScript.UpdateLanes();
 
         StartupFinished = true;
 

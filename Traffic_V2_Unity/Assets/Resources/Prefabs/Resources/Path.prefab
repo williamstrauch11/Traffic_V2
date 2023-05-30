@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2276846262981341486}
   - component: {fileID: -3914167844582727076}
   - component: {fileID: 135683423809481517}
-  - component: {fileID: 9198627922097335015}
   - component: {fileID: 2962189721902262497}
   m_Layer: 0
   m_Name: Path
@@ -68,20 +67,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26523e5475d2f4c1b9ed7dc5a3a750fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nodeNum: 100
-  _radius: 10
---- !u!114 &9198627922097335015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3719885187885287587}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fff9e62a09b914ec5be7f66c672fca71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  NodeNum: 0
+  Radius: 0
 --- !u!114 &2962189721902262497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,7 +101,7 @@ MonoBehaviour:
       - 0
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 1
+    vertexPathUpToDate: 0
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1

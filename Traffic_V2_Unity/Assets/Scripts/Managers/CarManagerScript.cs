@@ -3,40 +3,50 @@ using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 
-public class CarManagerScript : MonoBehaviour
+public class CarManagerScript
 {
-    // References
-    GameObject[] CarArray;
 
-    private void Awake()
+    // References
+    readonly GameObject[] CarArray;
+    readonly GameObject CarManager;
+
+
+    // Constructor 
+    public CarManagerScript()
     {
-        //Fill References
-        CarArray = new GameObject[RunSettings.CarNum];
+        // Fill References
+        CarArray = new GameObject[RunSettings.CARNUM];
+        CarManager = GameObject.Find("CarManager");
+
     }
 
+
+    // Called from SimManagerScript upon startup
     public void SpawnAllCars()
     {
-        for (int i = 0; i < RunSettings.CarNum; i++)
+        // Spawn each lane
+        for (int i = 0; i < RunSettings.CARNUM; i++)
         {
-
-            SpawnOneCar(i);
-
+            SpawnOneLane(i);
         }
     }
 
-    private void SpawnOneCar(int CarID)
+
+
+    private void SpawnOneLane(int CarID)
     {
 
         // Create the game object
-        CarArray[CarID] = GameObject.Instantiate(Resources.Load("Lane")) as GameObject;
+        CarArray[CarID] = GameObject.Instantiate(Resources.Load("Car")) as GameObject;
 
         // Name
-        CarArray[CarID].name = "Lane_" + CarID;
+        CarArray[CarID].name = "Car_" + CarID;
 
-        // Set as child
-        CarArray[CarID].transform.SetParent(gameObject.transform);
+        // Set as child of LaneManager GameObject
+        CarArray[CarID].transform.SetParent(CarManager.transform);
 
-        //Call 'Spawn', passing in attributes
-        //CarArray[CarID].GetComponent<PathCreation.Examples.>().placeCar(CarID, lane);
+        // Call Spawn function in CarScript(Monobehavior)
+        // CarArray[CarID].GetComponent<CarScript>().placeCar(CarID, lane);
+
     }
 }

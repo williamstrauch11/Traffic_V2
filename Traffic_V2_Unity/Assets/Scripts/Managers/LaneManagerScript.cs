@@ -17,10 +17,10 @@ public class LaneManagerScript
     public LaneManagerScript()
     {
         // Fill References
-        LaneArray = new GameObject[RunSettings.LaneNum];
+        LaneArray = new GameObject[RunSettings.LANENUM];
         LaneManager = GameObject.Find("LaneManager");
 
-        laneFieldManagers = new LaneFieldManager[RunSettings.LaneNum];
+        laneFieldManagers = new LaneFieldManager[RunSettings.LANENUM];
     }
 
 
@@ -28,7 +28,7 @@ public class LaneManagerScript
     public void SpawnAllLanes()
     {
         // Spawn each lane
-        for (int i = 0; i < RunSettings.LaneNum; i++)
+        for (int i = 0; i < RunSettings.LANENUM; i++)
         {
             SpawnOneLane(i);
         }
@@ -60,7 +60,7 @@ public class LaneManagerScript
     public void UpdateLanes()
     {
         // Update each lane to set visuals
-        for (int i = 0; i < RunSettings.LaneNum; i++)
+        for (int i = 0; i < RunSettings.LANENUM; i++)
         {
             // Update visual values
             LaneArray[i].GetComponent<PathCreation.Examples.RoadMeshCreator>().ParameterUpdate(laneFieldManagers[i].RoadWidth, laneFieldManagers[i].TextureTiling);
