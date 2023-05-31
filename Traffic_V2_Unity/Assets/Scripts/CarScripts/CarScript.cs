@@ -8,10 +8,9 @@ public class CarScript : MonoBehaviour
     // References
     private LaneManagerScript laneManagerScript; 
     private CarScriptableObject carScriptableObject;
-
-    // Physical Properties
     private BoxCollider boxCollider;
 
+    // Properties
     [field: SerializeField] public int CarID { get; private set; }
     [field: SerializeField] public int Lane { get; private set; }
 
@@ -24,13 +23,16 @@ public class CarScript : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        // References
+        // References fill
         laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
         carScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/CarScriptableObject")) as CarScriptableObject;
-
-        // Phyiscal Properties
         boxCollider = this.gameObject.GetComponent<BoxCollider>();
 
+    }
+
+    public void Run(float dt)
+    {
+        return;
     }
 
     public void SpawnCar(int _carID, int _laneGiven)
@@ -44,15 +46,8 @@ public class CarScript : MonoBehaviour
         SetCarSize();
 
         // Place in lane
-        MoveOnLane(SpawnPosition());
+        MoveOnLane(PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID));
 
-    }
-
-
-    private float SpawnPosition()
-    {
-        float fraction = laneManagerScript.LaneLengths[Lane] / RunSettings.CARNUM;
-        return fraction * CarID;
     }
 
 
@@ -81,16 +76,11 @@ public class CarScript : MonoBehaviour
 
     private void SetCarSize()
     {
-        float _colliderLength = boxCollider.size.x;
-        float _colliderWidth = boxCollider.size.y;
+        // Calculate ratio between the box collider (fit to the image), and the final dimensions given in scriptable object
+        float _lengthRatio = carScriptableObject.Length / boxCollider.size.x;
+        float _widthRatio = carScriptableObject.Width / boxCollider.size.y;
 
-        float _lengthRatio = carScriptableObject.Length / _colliderLength;
-        float _widthRatio = carScriptableObject.Width / _colliderWidth;
-
-        // Set collider
-        // boxCollider.size = new Vector3(carScriptableObject.Length, carScriptableObject.Width, _colliderDepth);
-
-        // Set visual
+        // Set car size via transform.scale
         transform.localScale = new Vector3(_lengthRatio, _widthRatio, 1);
 
     }

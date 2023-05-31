@@ -17,8 +17,9 @@ public class SimManagerScript : MonoBehaviour
     {
 
         // Fill References
-        carManagerScript = new CarManagerScript();
+        carManagerScript = GameObject.FindGameObjectWithTag("CarManager").GetComponent<CarManagerScript>();
         laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
+
     }
     // Start is called before the first frame update
     private void Start()
@@ -33,6 +34,8 @@ public class SimManagerScript : MonoBehaviour
     {
         if (StartupFinished)
         {
+
+            carManagerScript.RunCars(Time.deltaTime);
      
         }
     }
