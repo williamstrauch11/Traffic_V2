@@ -18,8 +18,7 @@ public class SimManagerScript : MonoBehaviour
 
         // Fill References
         carManagerScript = new CarManagerScript();
-        laneManagerScript = new LaneManagerScript();
-
+        laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
     }
     // Start is called before the first frame update
     private void Start()
@@ -45,14 +44,14 @@ public class SimManagerScript : MonoBehaviour
         // Spawn Lanes
         laneManagerScript.SpawnAllLanes();
 
-        // Spawn Cars
-        carManagerScript.SpawnAllCars();
-
         // Wait for next frame
         yield return new WaitForEndOfFrame();
 
-        // Update Lanes to clear visual issues
+        // Update Lanes to clear visual issues and fill length array
         laneManagerScript.UpdateLanes();
+
+        // Spawn Cars
+        carManagerScript.SpawnAllCars();
 
         StartupFinished = true;
 

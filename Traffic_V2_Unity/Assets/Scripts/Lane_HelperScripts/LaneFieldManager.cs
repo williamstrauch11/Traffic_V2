@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class LaneFieldManager
 {
-    public LaneFieldManagerVariables laneFieldManagerVariables = new LaneFieldManagerVariables();
+
+    public LaneSetupScriptableObject laneSetupScriptableObject;
 
     public int LaneNum { get; }
     public float Radius { get; }
@@ -22,6 +24,8 @@ public class LaneFieldManager
     {
         LaneNum = _laneNum;
 
+        laneSetupScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/LaneSetupScriptableObject")) as LaneSetupScriptableObject;
+
         SetParameters();
 
         Radius = _radius;
@@ -32,17 +36,13 @@ public class LaneFieldManager
 
     public void SetParameters()
     {
-        _radius = (LaneNum * RunSettings.LANE_WIDTH * 2) + RunSettings.INNER_LANE_RADIUS;
+        _radius = (LaneNum * RunSettings.LANE_WIDTH * 2) + laneSetupScriptableObject.InnerCircleRadius;
         _roadWidth = RunSettings.LANE_WIDTH;
-        _nodeNum = (int)Mathf.Round(_radius * laneFieldManagerVariables._nodeMultiplier);
-        _textureTiling = laneFieldManagerVariables._textureTilingMultiplier * _radius;
+        _nodeNum = (int)Mathf.Round(_radius * laneSetupScriptableObject.NodeMultiplier);
+        _textureTiling = laneSetupScriptableObject.TextureTilingMultiplier * _radius;
         
     }
 
 }
 
-public class LaneFieldManagerVariables
-{
-    public float _nodeMultiplier { get; } = 0.5f; // Nodes per unit of radius
-    public float _textureTilingMultiplier { get; } = 0.2f;
-}
+

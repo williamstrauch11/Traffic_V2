@@ -115,7 +115,7 @@ MonoBehaviour:
     showNormalsInVertexMode: 0
     showBezierPathInVertexMode: 0
     showDisplayOptions: 0
-    showPathOptions: 1
+    showPathOptions: 0
     showVertexPathDisplayOptions: 0
     showVertexPathOptions: 1
     showNormals: 0

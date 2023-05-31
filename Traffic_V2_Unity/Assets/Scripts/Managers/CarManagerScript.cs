@@ -37,7 +37,7 @@ public class CarManagerScript
     {
 
         // Create the game object
-        CarArray[CarID] = GameObject.Instantiate(Resources.Load("Car")) as GameObject;
+        CarArray[CarID] = GameObject.Instantiate(Resources.Load("Prefabs/Car")) as GameObject;
 
         // Name
         CarArray[CarID].name = "Car_" + CarID;
@@ -46,7 +46,7 @@ public class CarManagerScript
         CarArray[CarID].transform.SetParent(CarManager.transform);
 
         // Call Spawn function in CarScript(Monobehavior)
-        // CarArray[CarID].GetComponent<CarScript>().placeCar(CarID, lane);
+        CarArray[CarID].GetComponent<CarScript>().SpawnCar(CarID, PublicFunctions.AssignLanes(CarID));
 
     }
 }

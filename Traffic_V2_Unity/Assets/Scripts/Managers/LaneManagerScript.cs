@@ -1,26 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
+using PathCreation;
 using UnityEngine;
 
-public class LaneManagerScript
+public class LaneManagerScript : MonoBehaviour
 {
 
     // References
-    readonly GameObject[] LaneArray;
-    readonly GameObject LaneManager;
+    [HideInInspector] public GameObject[] LaneArray; // GameObject array of the lanes
+    [HideInInspector] public float[] LaneLengths; // Float array of the lane lengths
+    [HideInInspector] public PathCreator[] LaneScriptArray; // Array of PathCreator scripts
 
-    readonly LaneFieldManager[] laneFieldManagers;
+    [HideInInspector] public LaneFieldManager[] laneFieldManagers; // Array of LaneFieldManager C# scripts
 
 
     // Constructor 
-    public LaneManagerScript()
+    void Awake()
     {
         // Fill References
         LaneArray = new GameObject[RunSettings.LANENUM];
-        LaneManager = GameObject.Find("LaneManager");
+        LaneLengths = new float[RunSettings.LANENUM];
+        LaneScriptArray = new PathCreator[RunSettings.LANENUM];
 
         laneFieldManagers = new LaneFieldManager[RunSettings.LANENUM];
+
+        // Set lanes to z = -1, so that cars can be on 0
+        SetPosition(0f, 0f, -1f);
     }
 
 
@@ -40,13 +45,13 @@ public class LaneManagerScript
     {
 
         // Create the game object
-        LaneArray[LaneID] = GameObject.Instantiate(Resources.Load("Path")) as GameObject;
+        LaneArray[LaneID] = GameObject.Instantiate(Resources.Load("Prefabs/Path")) as GameObject;
 
         // Name
         LaneArray[LaneID].name = "Lane_" + LaneID;
 
         // Set as child of LaneManager GameObject
-        LaneArray[LaneID].transform.SetParent(LaneManager.transform);
+        LaneArray[LaneID].transform.SetParent(this.gameObject.transform);
 
         // Fill lane settings
         laneFieldManagers[LaneID] = new LaneFieldManager(LaneID);
@@ -59,7 +64,7 @@ public class LaneManagerScript
     // Called from SimManagerScript after a frame
     public void UpdateLanes()
     {
-        // Update each lane to set visuals
+        // Update each lane
         for (int i = 0; i < RunSettings.LANENUM; i++)
         {
             // Update visual values
@@ -69,5 +74,29 @@ public class LaneManagerScript
             LaneArray[i].GetComponent<PathCreation.Examples.RoadMeshCreator>().PathUpdatedForced();
 
         }
+
+        UpdateLaneInfo();
+    }
+
+
+    private void UpdateLaneInfo()
+    {
+        // Update each lane
+        for (int i = 0; i < RunSettings.LANENUM; i++)
+        {
+            // Update script array
+            LaneScriptArray[i] = LaneArray[i].GetComponent<PathCreator>();
+
+            // Update length array
+            LaneLengths[i] = LaneScriptArray[i].path.length;
+
+        }
+    }
+
+    private void SetPosition(float x, float y, float z)
+    {
+        Vector3 temp = new Vector3(x, y, z);
+        transform.position += temp;
+
     }
 }
