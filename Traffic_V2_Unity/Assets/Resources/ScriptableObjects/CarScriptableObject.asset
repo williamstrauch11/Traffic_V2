@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 1.9
   Length: 4.7
+  Velocity: 10

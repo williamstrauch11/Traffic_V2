@@ -17,6 +17,7 @@ public class CarScript : MonoBehaviour
     // Positional
     public Vector3 Position { get; private set; }
     public Vector3 Heading { get; private set; }
+    public float LanePosition { get; private set; } 
 
 
 
@@ -32,7 +33,11 @@ public class CarScript : MonoBehaviour
 
     public void Run(float dt)
     {
-        return;
+
+        float _oldLanePosition = LanePosition;
+
+        LanePosition += (dt * carScriptableObject.Velocity);
+        MoveOnLane(LanePosition);
     }
 
     public void SpawnCar(int _carID, int _laneGiven)
@@ -45,8 +50,12 @@ public class CarScript : MonoBehaviour
         // Set size, based on scriptable object assigned
         SetCarSize();
 
+        LanePosition = PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID);
+
         // Place in lane
-        MoveOnLane(PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID));
+        MoveOnLane(LanePosition);
+
+        
 
     }
 

@@ -9,4 +9,6 @@ public class CarScriptableObject : ScriptableObject
     public float Width = 1.9f;
     public float Length = 4.7f;
 
+    public float Velocity = 10f;
+
 }
