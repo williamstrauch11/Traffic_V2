@@ -9,6 +9,7 @@ public class CarScript : MonoBehaviour
     private LaneManagerScript laneManagerScript; 
     private CarScriptableObject carScriptableObject;
     private BoxCollider boxCollider;
+    private BrainScript brainScript;
 
     // Properties
     [field: SerializeField] public int CarID { get; private set; }
@@ -34,10 +35,19 @@ public class CarScript : MonoBehaviour
     public void Run(float dt)
     {
 
+
+
+        // Movement, find
+        // Movement, execute
+
+
+
         float _oldLanePosition = LanePosition;
 
         LanePosition += (dt * carScriptableObject.Velocity);
         MoveOnLane(LanePosition);
+
+
     }
 
     public void SpawnCar(int _carID, int _laneGiven)
@@ -50,13 +60,32 @@ public class CarScript : MonoBehaviour
         // Set size, based on scriptable object assigned
         SetCarSize();
 
+        // Get starting position
         LanePosition = PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID);
 
         // Place in lane
         MoveOnLane(LanePosition);
 
-        
+        // Spawn other scripts
+        brainScript = new BrainScript();
 
+        // Start ComputationCoroutine
+        StartCoroutine(ComputationCoroutine());
+
+
+    }
+
+    private IEnumerator ComputationCoroutine()
+    {
+
+        WaitForSeconds _wait = new WaitForSeconds(RunSettings.COMPUTATION_DELAY);
+
+        while (true)
+        {
+            yield return _wait;
+            Debug.Log("hi");
+            brainScript.RunBrain();
+        }
     }
 
 

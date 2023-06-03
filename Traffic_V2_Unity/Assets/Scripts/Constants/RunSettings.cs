@@ -15,7 +15,8 @@ public static class RunSettings
 
 
     //Car
-    public static int CARNUM { get; } = 15;
+    public static int CARNUM { get; } = 1;
+    public static float COMPUTATION_DELAY = 0.1f;
 
 
     
