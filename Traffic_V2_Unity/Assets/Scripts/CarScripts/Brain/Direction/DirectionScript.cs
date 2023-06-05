@@ -7,9 +7,11 @@ public class DirectionScript
     public Vector3 Position { get; private set; }
     public Vector3 Heading { get; private set; }
 
-public DirectionScript()
-    {
+    public PathFunctions pathFunctions;
 
+    public DirectionScript()
+    {
+        pathFunctions = new PathFunctions();
     }
 
     public void OnComputation()

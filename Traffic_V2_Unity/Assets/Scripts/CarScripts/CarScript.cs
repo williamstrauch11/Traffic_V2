@@ -19,7 +19,8 @@ public class CarScript : MonoBehaviour
     // Positional
     public Vector3 Position { get; private set; }
     public Vector3 Heading { get; private set; }
-    public float LanePosition { get; private set; }
+    [field: SerializeField] public float LanePosition { get; private set; }
+    public float LanePositionCalc;
     public float Velocity { get; private set; }
 
 
@@ -36,6 +37,8 @@ public class CarScript : MonoBehaviour
 
     public void Run(float dt)
     {
+
+        /*
         // Get acceleration
         float _acceleration = brainScript.accelerationScript.OnFrame(dt);
 
@@ -51,14 +54,17 @@ public class CarScript : MonoBehaviour
 
         UpdatePosition(_position);
         UpdateRotation(_heading);
+        */
 
-
-        /*
+        
         float _oldLanePosition = LanePosition;
 
+        LanePositionCalc = brainScript.directionScript.pathFunctions.ClosestPointOnPath(3, transform.position, 0.01f);
         LanePosition += (dt * carScriptableObject.Velocity);
+
+        Debug.Log(Mathf.Abs(LanePosition - LanePositionCalc));
         MoveOnLane(LanePosition);
-        */
+        
 
 
     }
