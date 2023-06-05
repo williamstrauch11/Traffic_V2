@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.UIElements.Experimental;
 
 public class CarScript : MonoBehaviour
 {
@@ -18,7 +19,8 @@ public class CarScript : MonoBehaviour
     // Positional
     public Vector3 Position { get; private set; }
     public Vector3 Heading { get; private set; }
-    public float LanePosition { get; private set; } 
+    public float LanePosition { get; private set; }
+    public float Velocity { get; private set; }
 
 
 
@@ -34,18 +36,29 @@ public class CarScript : MonoBehaviour
 
     public void Run(float dt)
     {
+        // Get acceleration
+        float _acceleration = brainScript.accelerationScript.OnFrame(dt);
+
+        // Calculate L (distance travelled in this frame)
+        float L = MovementCalc(_acceleration, dt);
+
+        // Move this distance on our Bezier curve (update the local variables of Position and Heading in directionScript)
+        brainScript.directionScript.OnFrame(L, transform.position);
+
+        // Position and heading updates
+        Vector3 _position = brainScript.directionScript.Position;
+        Vector3 _heading = brainScript.directionScript.Heading;
+
+        UpdatePosition(_position);
+        UpdateRotation(_heading);
 
 
-
-        // Movement, find
-        // Movement, execute
-
-
-
+        /*
         float _oldLanePosition = LanePosition;
 
         LanePosition += (dt * carScriptableObject.Velocity);
         MoveOnLane(LanePosition);
+        */
 
 
     }
@@ -57,6 +70,15 @@ public class CarScript : MonoBehaviour
         CarID = _carID;
         Lane = _laneGiven;
 
+        SpawnPositions();
+
+        SpawnOther();
+
+    }
+
+    private void SpawnPositions()
+    {
+
         // Set size, based on scriptable object assigned
         SetCarSize();
 
@@ -65,14 +87,15 @@ public class CarScript : MonoBehaviour
 
         // Place in lane
         MoveOnLane(LanePosition);
+    }
 
+    private void SpawnOther()
+    {
         // Spawn other scripts
         brainScript = new BrainScript();
 
         // Start ComputationCoroutine
         StartCoroutine(ComputationCoroutine());
-
-
     }
 
     private IEnumerator ComputationCoroutine()
@@ -83,9 +106,17 @@ public class CarScript : MonoBehaviour
         while (true)
         {
             yield return _wait;
-            Debug.Log("hi");
+
             brainScript.RunBrain();
+
         }
+    }
+
+    private float MovementCalc(float _acceleration, float dt)
+    {
+        Velocity += _acceleration * dt;
+
+        return (Velocity * dt) + (_acceleration * dt * dt / 2);
     }
 
 
@@ -93,18 +124,28 @@ public class CarScript : MonoBehaviour
     {
 
         UpdatePosition(laneManagerScript.LaneScriptArray[Lane].path.GetPointAtDistance(_lanePosition));
-        UpdateRotation(laneManagerScript.LaneScriptArray[Lane].path.GetRotationAtDistance(_lanePosition));
+        UpdateRotation1(laneManagerScript.LaneScriptArray[Lane].path.GetRotationAtDistance(_lanePosition));
 
     }
 
-    private void UpdatePosition(Vector3 PositionUpdate)
+    private void UpdatePosition(Vector3 _position)
     {
-        transform.position = PositionUpdate;
+        transform.position = _position;
 
-        Position = PositionUpdate;
+        Position = _position;
     }
 
-    private void UpdateRotation(Quaternion RotationUpdate)
+    private void UpdateRotation(Vector3 _heading)
+    {
+
+        float rot_z = Mathf.Atan2(_heading.y, _heading.x) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(0f, 0f, rot_z);
+
+        Heading = _heading;
+    }
+
+    private void UpdateRotation1(Quaternion RotationUpdate)
     {
 
         transform.rotation = RotationUpdate * Quaternion.Euler(0, -90, 0);
