@@ -11,6 +11,7 @@ public class CarScript : MonoBehaviour
     private CarScriptableObject carScriptableObject;
     private BoxCollider boxCollider;
     private BrainScript brainScript;
+    private MovementScript movementScript;
 
     // Properties
     [field: SerializeField] public int CarID { get; private set; }
@@ -38,34 +39,18 @@ public class CarScript : MonoBehaviour
     public void Run(float dt)
     {
 
-        /*
         // Get acceleration
         float _acceleration = brainScript.accelerationScript.OnFrame(dt);
 
         // Calculate L (distance travelled in this frame)
-        float L = MovementCalc(_acceleration, dt);
+        float L = movementScript.MovementCalc(_acceleration, dt);
 
         // Move this distance on our Bezier curve (update the local variables of Position and Heading in directionScript)
-        brainScript.directionScript.OnFrame(L, transform.position);
+        brainScript.directionScript.OnFrame(L, dt);
 
-        // Position and heading updates
-        Vector3 _position = brainScript.directionScript.Position;
-        Vector3 _heading = brainScript.directionScript.Heading;
-
-        UpdatePosition(_position);
-        UpdateRotation(_heading);
-        */
-
-        
-        float _oldLanePosition = LanePosition;
-
-        LanePositionCalc = brainScript.directionScript.pathFunctions.ClosestPointOnPath(3, transform.position, 0.01f);
-        LanePosition += (dt * carScriptableObject.Velocity);
-
-        Debug.Log(Mathf.Abs(LanePosition - LanePositionCalc));
-        MoveOnLane(LanePosition);
-        
-
+        // Position and Heading updates
+        UpdatePosition(brainScript.directionScript.Position);
+        UpdateRotation(brainScript.directionScript.Heading);
 
     }
 
@@ -76,9 +61,9 @@ public class CarScript : MonoBehaviour
         CarID = _carID;
         Lane = _laneGiven;
 
-        SpawnPositions();
-
         SpawnOther();
+
+        SpawnPositions();
 
     }
 
@@ -88,17 +73,21 @@ public class CarScript : MonoBehaviour
         // Set size, based on scriptable object assigned
         SetCarSize();
 
-        // Get starting position
-        LanePosition = PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID);
+        // Set starting position
+
+        float _startLanePosition = PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID);
+
+        brainScript.directionScript.SpawnSet(Lane, _startLanePosition);
 
         // Place in lane
-        MoveOnLane(LanePosition);
+        // MoveOnLane(LanePosition);
     }
 
     private void SpawnOther()
     {
         // Spawn other scripts
         brainScript = new BrainScript();
+        movementScript = new MovementScript(carScriptableObject.Velocity);
 
         // Start ComputationCoroutine
         StartCoroutine(ComputationCoroutine());
@@ -107,56 +96,32 @@ public class CarScript : MonoBehaviour
     private IEnumerator ComputationCoroutine()
     {
 
+        brainScript.RunBrain(Lane, transform.position, transform.right, movementScript.Velocity);
+
         WaitForSeconds _wait = new WaitForSeconds(RunSettings.COMPUTATION_DELAY);
 
         while (true)
         {
             yield return _wait;
 
-            brainScript.RunBrain();
+            // Send REAL transform values, in case course correct is needed
+            brainScript.RunBrain(Lane, transform.position, transform.right, movementScript.Velocity);
 
         }
-    }
-
-    private float MovementCalc(float _acceleration, float dt)
-    {
-        Velocity += _acceleration * dt;
-
-        return (Velocity * dt) + (_acceleration * dt * dt / 2);
-    }
-
-
-    private void MoveOnLane(float _lanePosition)
-    {
-
-        UpdatePosition(laneManagerScript.LaneScriptArray[Lane].path.GetPointAtDistance(_lanePosition));
-        UpdateRotation1(laneManagerScript.LaneScriptArray[Lane].path.GetRotationAtDistance(_lanePosition));
-
     }
 
     private void UpdatePosition(Vector3 _position)
     {
         transform.position = _position;
-
-        Position = _position;
     }
 
     private void UpdateRotation(Vector3 _heading)
     {
-
+     
         float rot_z = Mathf.Atan2(_heading.y, _heading.x) * Mathf.Rad2Deg;
 
         transform.rotation = Quaternion.Euler(0f, 0f, rot_z);
 
-        Heading = _heading;
-    }
-
-    private void UpdateRotation1(Quaternion RotationUpdate)
-    {
-
-        transform.rotation = RotationUpdate * Quaternion.Euler(0, -90, 0);
-
-        Heading = transform.right;
     }
 
     private void SetCarSize()

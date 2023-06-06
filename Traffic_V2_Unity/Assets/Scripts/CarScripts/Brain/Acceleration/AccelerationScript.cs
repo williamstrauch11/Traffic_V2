@@ -18,7 +18,7 @@ public class AccelerationScript
     public float OnFrame(float dt)
     {
 
-        float _acceleration = 0.1f;
+        float _acceleration = 1f;
         return _acceleration;
 
     }

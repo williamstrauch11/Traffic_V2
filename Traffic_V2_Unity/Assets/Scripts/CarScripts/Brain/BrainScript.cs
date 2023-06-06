@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class BrainScript
 {
-    // Fields
-    // public float Delay { get; }
+    
 
     // References
     public VisionScript visionScript;
     public DirectionScript directionScript;
     public AccelerationScript accelerationScript;
+
+
 
 
     public BrainScript()
@@ -23,10 +24,10 @@ public class BrainScript
     }
 
 
-    public void RunBrain()
+    public void RunBrain(int _lane, Vector3 _position, Vector3 _heading, float _velocity)
     {
 
-        directionScript.OnComputation();
+        directionScript.OnComputation(_lane, _position, _heading, _velocity);
         accelerationScript.OnComputation();
 
     }

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
-public class Curve : MonoBehaviour
+public class Curve1 : MonoBehaviour
 {
     [Range(0.001f,0.1f)]
     public float increment; // 0.04 seems about good
@@ -12,16 +12,17 @@ public class Curve : MonoBehaviour
     [Range(0.00001f, 0.1f)]
     public float Threshold; // 0.1 gives about 3-4 recursions, seems nice and stable. Max I would do is 0.01, which gives about 8 recursions. Lets do 0.02
 
-    private float[] nodeArray;
+    private List<float> nodeList;
 
     private int runNum;
 
     private void OnDrawGizmos()
     {
-        nodeArray = new float[(int)(1 / increment)];
 
-        Debug.Log(nodeArray.Length);
-
+        nodeList.Clear();
+        increment = 0.01f;
+        Threshold = 0.01f;
+            
         Vector3 A = transform.GetChild(0).position;  // Anchor A
         Vector3 D = transform.GetChild(1).position; // Anchor B
 
@@ -39,12 +40,12 @@ public class Curve : MonoBehaviour
 
         // Starting values. Distance is the node's distance from its anchor, which gets multiplied by MagRatio and direction
         // Result is the standard deviation for this distance
-        float TrialDistance = Vector3.Distance(A, D) / 2; // This seems to be fine, all resulting values fall within the range
-        float TrialResult = CurveCalc(TrialDistance, A, D, Direction_A, Direction_B, MagRatio);
+
+        float TrialDistance = Vector3.Distance(A, D) / 6; // This seems to be fine, all resulting values fall within the range
 
         runNum = 0;
 
-        float FinalDistance = CurveTrial(TrialDistance, A, D, Direction_A, Direction_B, MagRatio, TrialDistance, TrialResult);
+        float FinalDistance = CurveTrial(0f, TrialDistance * 2, A, D, Direction_A, Direction_B, MagRatio);
 
         Vector3 B = A + (Direction_A * MagRatio * FinalDistance);
         Vector3 C = D + (Direction_B * FinalDistance);
@@ -53,55 +54,50 @@ public class Curve : MonoBehaviour
 
     }
 
-    public float CurveTrial(float _trialDistance, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio, float _cutter, float _trialResult)
+    public float CurveTrial(float _min, float _max, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio)
     {
 
-        // Lower and Upper results
-        float _lowerResult = CurveCalc(_trialDistance - _cutter, A, D, _direction_A, _direction_B, _magRatio);
-        float _upperResult = CurveCalc(_trialDistance + _cutter, A, D, _direction_A, _direction_B, _magRatio);
+        float _range = Mathf.Abs(_max - _min);
+        int _count = 20;
 
-        // Minimum calculation
-        float _minResult; 
-        float _updatedDistance;
+        if (_range < Threshold)
+        {
+            Debug.Log(runNum);
+            return _min + (_range / 2);
+        }
 
-        if (_lowerResult <= _trialResult && _lowerResult <= _upperResult)
+        float[,] _trialsArray = new float[_count, 2];
+
+
+        int pos = 0;
+        for (int i = 0; i < _count; i++)
         {
-            _updatedDistance = _trialDistance - _cutter;
-            _minResult = _lowerResult;
+            nodeList.Clear();
+
+            float _value = _min + i * (_range / _count);
+            float _fValue = CurveCalc(_value, A, D, _direction_A, _direction_B, _magRatio);
+            _trialsArray[i, 0] = _value;
+            _trialsArray[i, 1] = _fValue;
+
+            
+
+            // Get min in pos
+            if (_trialsArray[i, 1] < _trialsArray[pos, 1]) { pos = i; }
         }
-        else if (_trialResult <= _lowerResult && _trialResult <= _upperResult)
-        {
-            _updatedDistance = _trialDistance;
-            _minResult = _trialResult;
-        }
-        else
-        {
-            _updatedDistance = _trialDistance + _cutter;
-            _minResult = _upperResult;
-        }
+
+        int _divisor = 8;
+
+        float _newMin = _trialsArray[pos, 0] - (_range / _divisor);
+
+        if (_newMin < 0) { _newMin = 0; }
+
+        float _newMax = _trialsArray[pos, 0] + (_range / _divisor);
+
+        runNum++;
 
         
-        // Average difference calculation for recursion bounds
-        float _averageDif = (Mathf.Abs(_trialResult - _lowerResult) + Mathf.Abs(_upperResult - _trialResult)) / 2;
+        return CurveTrial(_newMin, _newMax, A, D, _direction_A, _direction_B, _magRatio);
 
-
-        // Recursive decision tree
-        if (runNum > 50)
-        {
-            Debug.Log("Errored out:  " + runNum);
-            return _updatedDistance;
-        }
-
-        else if (_averageDif > Threshold)
-        {
-            runNum++;
-            return CurveTrial(_updatedDistance, A, D, _direction_A, _direction_B, _magRatio, _cutter / 2, _minResult);
-        }
-        else
-        {
-            Debug.Log("Finished in:  " + runNum);
-            return _updatedDistance;
-        }
     }
 
     // Set up curves to be tested
@@ -121,7 +117,7 @@ public class Curve : MonoBehaviour
         Vector3 _oldPoint = new Vector3();
         Vector3 _point = new Vector3();
 
-        int i = 0;
+        
         for (float t = 0; t <= 1; t += increment)
         {
             _oldPoint = _point;
@@ -136,14 +132,13 @@ public class Curve : MonoBehaviour
             if (t != 0)
             {
                 float _distance = Vector3.Distance(_oldPoint, _point);
-                nodeArray[i] = _distance;
-                i++;
+                nodeList.Add(_distance);
             }
             
 
         }
 
-        return 1 / Mathf.Min(nodeArray);
+        return 1 / nodeList.Min();
         
     }
 
