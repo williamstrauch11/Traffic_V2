@@ -14,7 +14,7 @@ public static class PathConstants
 
     public static int SEARCH_DIVIDED { get; } = 10;
 
-    public static float TIMER_MAX { get; } = 0.75F;
+    public static float TIMER_MAX { get; } = 1F;
 
 
 

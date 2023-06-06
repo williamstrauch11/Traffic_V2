@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -24,23 +25,31 @@ public class DirectionScript
 
     // Path Variables
     public float PathTimer { get; private set; }
+    public int _localLaneChanger { get; private set; }
 
     public PathFunctions pathFunctions;
 
     public DirectionScript()
     {
         pathFunctions = new PathFunctions();
+        PathTimer = 0f;
+        _localLaneChanger = 1;
     }
 
-    public void OnComputation(int _lane, Vector3 _position, Vector3 _heading, float _velocity)
+    public void OnComputation(int _lane, Vector3 _position, Vector3 _heading, float _velocity, bool _startup)
     {
         if (PathTimer > PathConstants.TIMER_MAX)
         {
-            
             BezierCalc(_lane, _velocity, _position, _heading);
-
         }
 
+        else if (_startup)
+        {
+            Debug.Log("Startup");
+            BezierCalc(_lane, _velocity, _position, _heading);
+        }
+
+        
         // This may mean check to see how far away we are from our lane, and how we are oriented relative to it
         // Also, if we are getting close to the end of our computed path
 
@@ -51,7 +60,8 @@ public class DirectionScript
     public void OnFrame(float L, float dt)
     {
         // Move along our current path the distance L
-        MoveAlongPath(dt, L, PathTimer, PDV1, PDV2, PDV3);
+        MoveAlongPath(dt, L, PDV1, PDV2, PDV3);
+
 
     }
 
@@ -61,9 +71,15 @@ public class DirectionScript
         Heading = pathFunctions.GetHeadingInLane(_lane, _lanePosition);
     }
 
-    public float GetCurrentLane(Vector3 _position)
+    public float LaneProximityCheck(int _lane, Vector3 _position)
     {
-        return 0f;
+        float _accuracy = 0.001f;
+        float _pointInLAne = pathFunctions.ClosestPointOnPath(_lane, _position, _accuracy);
+
+        Vector3 _pointOnPath = pathFunctions.GetPositionInLane(_lane, _pointInLAne);
+
+        return Vector3.Distance(_position, _pointOnPath);
+
     }
 
     public void BezierCalc(int _lane, float _velocity, Vector3 _position, Vector3 _heading)
@@ -112,10 +128,12 @@ public class DirectionScript
         PDV2 = (6 * Path_Anchor_1) - (12 * Path_Direction_1) + (6 * Path_Direction_2);
         PDV3 = (-3 * Path_Anchor_1) + (3 * Path_Direction_1);
 
+        Debug.Log("PathUpdate");
+
         PathTimer = 0;
     }
 
-    private void MoveAlongPath(float dt, float L, float _t0, Vector3 _v1, Vector3 _v2, Vector3 _v3)
+    private void MoveAlongPath(float dt, float L, Vector3 _v1, Vector3 _v2, Vector3 _v3)
     {
 
         float lag_threshold = 0.005f;
@@ -131,15 +149,18 @@ public class DirectionScript
 
         for (int i = 0; i < lag_runs; i++)
         {
+
             //Update t0, based on the length of the movement and the bezier curve
-            PathTimer = pathFunctions.T_Update(L, _t0, _v1, _v2, _v3);
+            PathTimer = pathFunctions.T_Update(L, PathTimer, _v1, _v2, _v3);
 
             //Update new position pointing direction 
-            Heading = pathFunctions.Bezier_Heading(_t0, _v1, _v2, _v3);
+            Heading = pathFunctions.Bezier_Heading(PathTimer, _v1, _v2, _v3);
 
             //Update carposition
             Position += Heading * L;
-        }
 
+        }
+        
     }
+        
 }

@@ -7,10 +7,10 @@ using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCou
 public class Curve1 : MonoBehaviour
 {
     [Range(0.001f,0.1f)]
-    public float increment; // 0.04 seems about good
+    public float increment; //
 
     [Range(0.00001f, 0.1f)]
-    public float Threshold; // 0.1 gives about 3-4 recursions, seems nice and stable. Max I would do is 0.01, which gives about 8 recursions. Lets do 0.02
+    public float Threshold; // 
 
     private List<float> nodeList;
 
@@ -20,6 +20,7 @@ public class Curve1 : MonoBehaviour
     {
 
         nodeList.Clear();
+
         increment = 0.01f;
         Threshold = 0.01f;
             
@@ -163,6 +164,8 @@ public class Curve1 : MonoBehaviour
             Gizmos.DrawWireSphere(_point, 0.1f);
 
         }
+
+      
     }
     
 

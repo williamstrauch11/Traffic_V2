@@ -1,18 +1,14 @@
 ﻿<Properties StartupConfiguration="{FE592BB4-B644-CF31-0F38-70BA25B151AC}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CarScripts/Brain/Direction/DirectionScript.cs">
+    <Files>
+      <File FileName="Assets/Scripts/CarScripts/Brain/Direction/DirectionScript.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="0df7d602-3fc0-4fd6-af7d-2c02cc58a911" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Resources/ThirdParty/PathCreator/Examples/Scripts/PathSpawner.cs">
-    <Files>
-      <File FileName="Assets/Scripts/RunSettings.cs" Line="15" Column="1" />
-      <File FileName="Assets/Scripts/SimManagerScript.cs" Line="9" Column="27" />
-      <File FileName="Assets/Scripts/LaneManagerScript.cs" Line="41" Column="12" />
-      <File FileName="Assets/Scripts/CarManagerScript.cs" Line="24" Column="10" />
-      <File FileName="Assets/Resources/ThirdParty/PathCreator/Examples/Scripts/PathSpawner.cs" Line="1" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="128c56fe-1551-4c36-9974-fe8dcd2d6333" />
   <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
 </Properties>

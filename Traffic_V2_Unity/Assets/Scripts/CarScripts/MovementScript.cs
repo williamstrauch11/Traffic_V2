@@ -13,7 +13,13 @@ public class MovementScript
 
     public float MovementCalc(float _acceleration, float dt)
     {
-        Velocity += _acceleration * dt;
+
+        
+        if (Velocity < 45)
+        {
+            Velocity += _acceleration * dt;
+        }
+       
 
         return (Velocity * dt) + (_acceleration * dt * dt / 2);
     }

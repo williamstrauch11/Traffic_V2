@@ -1,15 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using UnityEngine.UIElements.Experimental;
 
 public class PathFunctions
 {
+    // Setup
     private LaneManagerScript laneManagerScript;
 
     public int _runNum_d2l { get; private set; } // runnum for distance to lane
@@ -18,20 +13,17 @@ public class PathFunctions
     // Recursive Path Calculator
     public List<float> nodeList = new();
 
-
     public PathFunctions()
     {
 
         laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
-
-        nodeList.Add(0f);
+        
 
     }
 
 
-
     // ------------------------------------------------------------------------------------------------------------
-    // DISTANCE TO LANE CALCULATOR BELOW
+    // LANE CALCULATIONS BELOW
     // ------------------------------------------------------------------------------------------------------------
 
     public float ForwardInLane(int _lane, float _startingValue, float distance)
@@ -227,7 +219,7 @@ public class PathFunctions
 
         float lag_threshold = 0.005f;
         //If we are experiencing a lag spike, iterate over a number of things
-
+      
         //Add one, for min case
         int lag_runs = (int)Mathf.Round(dt / lag_threshold);
 
@@ -253,7 +245,8 @@ public class PathFunctions
 
     public float T_Update(float L, float t, Vector3 v1, Vector3 v2, Vector3 v3)
     {
-        float t_update = t + L / Vector3.Magnitude((Mathf.Pow(t, 2) * v1) + (t * v2 + v3));
+        // float t_update = t + L / Vector3.Magnitude((Mathf.Pow(t, 2) * v1) + (t * v2 + v3));
+        float t_update = t + L / Vector3.Magnitude(Mathf.Pow(t, 2) * v1 + t * v2 + v3);
 
         return t_update;
     }
@@ -262,6 +255,7 @@ public class PathFunctions
     {
         //Find direction of movement given t (0 < t < 1), and the three vectors for the quadratic curve calculated above. This is the derivative at a point (t) on the curve.
         Vector3 DmDt = (Mathf.Pow(t, 2) * v1) + (t * v2) + v3;
+
 
         //Heading vector
         return Vector3.Normalize(DmDt);
