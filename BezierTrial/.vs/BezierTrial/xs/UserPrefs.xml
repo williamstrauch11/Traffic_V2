@@ -1,15 +1,15 @@
 ﻿<Properties StartupConfiguration="{B60701E1-E401-1FAA-2663-593BE06F3E31}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Curve1.cs">
+    <Files>
+      <File FileName="Assets/Curve.cs" />
+      <File FileName="Assets/Curve1.cs" Line="169" Column="52" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="87c7ba6e-c6e0-4205-8696-93f06d4c839a" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="33925fbb-ee32-45c5-b77e-71492651ec4d" />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Curve1.cs">
-    <Files>
-      <File FileName="Assets/Curve.cs" Line="52" Column="31" />
-      <File FileName="Assets/Curve1.cs" Line="147" Column="5" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
 </Properties>

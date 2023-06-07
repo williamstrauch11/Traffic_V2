@@ -12,7 +12,7 @@ public class Curve1 : MonoBehaviour
     [Range(0.00001f, 0.1f)]
     public float Threshold; // 
 
-    private List<float> nodeList;
+    public List<float> nodeList = new();
 
     private int runNum;
 
@@ -51,6 +51,8 @@ public class Curve1 : MonoBehaviour
         Vector3 B = A + (Direction_A * MagRatio * FinalDistance);
         Vector3 C = D + (Direction_B * FinalDistance);
 
+        nodeList.Clear();
+
         CurveDraw(A, B, C, D);
 
     }
@@ -63,7 +65,7 @@ public class Curve1 : MonoBehaviour
 
         if (_range < Threshold)
         {
-            Debug.Log(runNum);
+            // Debug.Log(runNum);
             return _min + (_range / 2);
         }
 
@@ -96,7 +98,6 @@ public class Curve1 : MonoBehaviour
 
         runNum++;
 
-        
         return CurveTrial(_newMin, _newMax, A, D, _direction_A, _direction_B, _magRatio);
 
     }
@@ -129,12 +130,8 @@ public class Curve1 : MonoBehaviour
                 Mathf.Pow(t, 3) * D;
 
 
-
-            if (t != 0)
-            {
-                float _distance = Vector3.Distance(_oldPoint, _point);
-                nodeList.Add(_distance);
-            }
+            float _distance = Vector3.Distance(_oldPoint, _point);
+            nodeList.Add(_distance);
             
 
         }
@@ -150,23 +147,33 @@ public class Curve1 : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(B, 0.1f);
         Gizmos.DrawWireSphere(C, 0.1f);
-
         Gizmos.color = Color.white;
+
+        Vector3 _oldPoint = new Vector3();
+        Vector3 _point = new Vector3();
+
         for (float t = 0; t <= 1; t += increment)
         {
+            _oldPoint = _point;
 
-
-            Vector3 _point = Mathf.Pow(1 - t, 3) * A +
+            _point = Mathf.Pow(1 - t, 3) * A +
                 3 * Mathf.Pow(1 - t, 2) * t * B +
                 3 * (1 - t) * Mathf.Pow(t, 2) * C +
                 Mathf.Pow(t, 3) * D;
 
+            float _distance = Vector3.Distance(_oldPoint, _point);
+            nodeList.Add(_distance);
+
             Gizmos.DrawWireSphere(_point, 0.1f);
+            
+            Debug.Log(1 / nodeList.Min()/ increment);
 
         }
-
-      
     }
-    
 
+    public static float StandardDeviation(List<float> values)
+    {
+        float avg = values.Average();
+        return Mathf.Sqrt(values.Average(v => Mathf.Pow(v - avg, 2)));
+    }
 }
