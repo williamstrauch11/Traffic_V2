@@ -1,34 +1,40 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
 public class PathFunctions
 {
-    // Setup
+    #region Setup
+    // References
     private LaneManagerScript laneManagerScript;
+    public CarFunctionsScriptableObject carFunctionsScriptableObject { get; private set; }
 
-    public int _runNum_d2l { get; private set; } // runnum for distance to lane
-    public int _runNum_rpc { get; private set; } // runnum for recursive path calculator
-
-    // Recursive Path Calculator
-    public List<float> nodeList = new();
+    // Memory Allocation
+    float[] C_nodeArray;
+    float[,] C_trialsArray;
+    float[,] CA_trialsArray;
+    float[] AC_resultsArray;
 
     public PathFunctions()
     {
-
+        // References fill
         laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
-        
+        carFunctionsScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/DefaultCarFunctions")) as CarFunctionsScriptableObject;
 
+        // Memory Allocation
+        C_nodeArray = new float[(int)(1 / carFunctionsScriptableObject.CurveIncrement) + 1];
+        C_trialsArray = new float[carFunctionsScriptableObject.C_SearchDivisor, 2];
+        CA_trialsArray = new float[carFunctionsScriptableObject.CA_SearchDivisor, 2];
+        AC_resultsArray = new float[carFunctionsScriptableObject.AC_Divisor];
     }
+    #endregion
 
 
-    // ------------------------------------------------------------------------------------------------------------
-    // LANE CALCULATIONS BELOW
-    // ------------------------------------------------------------------------------------------------------------
+    #region Lane Calculations
 
-    public float ForwardInLane(int _lane, float _startingValue, float distance)
-    {
-        return (_startingValue + distance) % laneManagerScript.LaneLengths[_lane];
+    public float ForwardInLane(int _lane, float _startingValue, float _distance)
+    { 
+        return (_startingValue + _distance) % laneManagerScript.LaneLengths[_lane];
     }
 
     public Vector3 GetPositionInLane(int _lane, float _newLaneValue)
@@ -48,7 +54,6 @@ public class PathFunctions
     // _minThreshold = minimum range; optionalGuess = value that search will be centered on; optionalRangeLimiter = range divisor for faster calc
     public float ClosestPointOnPath(int _lane, Vector3 _carPosition, float _minThreshold, float _optionalGuess = 0f, int _optionalRangeLimiter = 1)
     {
-        _runNum_d2l = 0;
 
         float _laneLength = laneManagerScript.LaneLengths[_lane];
 
@@ -57,20 +62,38 @@ public class PathFunctions
         float _min = (_optionalGuess + _laneLength - (_searchRange / 2)) % _laneLength;
         float _max = (_optionalGuess + _laneLength + (_searchRange / 2)) % _laneLength;
 
-        float _bestGuess = RecursiveCalc(_min, _max, _searchRange, _carPosition, _laneLength, _lane, _minThreshold);
+        float _bestGuess = CP_RecursiveCalc(_min, _max, _searchRange, _carPosition, _laneLength, _lane, _minThreshold);
 
         return _bestGuess;
     }
 
 
+    /// <summary>
+    /// Returns how close we are to the closest point of the given lane, within the accuracy given
+    /// </summary>
+    public float DistanceToLane(int _lane, Vector3 _position, float _accuracy)
+    {
+
+        float _pointInLAne = ClosestPointOnPath(_lane, _position, _accuracy);
+
+        Vector3 _pointOnPath = GetPositionInLane(_lane, _pointInLAne);
+
+        return Vector3.Distance(_position, _pointOnPath);
+
+    }
+
+
     // min and max values to be passed into the search, range is between min and max
-    public float RecursiveCalc(float _min, float _max, float _range, Vector3 _carPosition, float _laneLength, int _lane, float _minThreshold)
+    // Good recursive format for symmetrical functions
+    public float CP_RecursiveCalc(float _min, float _max, float _range, Vector3 _carPosition, float _laneLength, int _lane, float _minThreshold, int _runNum = 0)
     {
 
         float _mid = (_min + (_range / 2)) % _laneLength;
 
         if (_range < _minThreshold)
         {
+            // Debug.Log(_runNum);
+
             return _mid;
         }
 
@@ -83,24 +106,18 @@ public class PathFunctions
         if (_fMidLower < _fMidUpper)
         {
 
-            _runNum_d2l++;
-            return RecursiveCalc(_min, _mid, _range / 2, _carPosition, _laneLength, _lane, _minThreshold);
+            _runNum++;
+            return CP_RecursiveCalc(_min, _mid, _range / 2, _carPosition, _laneLength, _lane, _minThreshold, _runNum);
         }
 
         else
         {
 
-            _runNum_d2l++;
-            return RecursiveCalc(_mid, _max, _range / 2, _carPosition, _laneLength, _lane, _minThreshold);
+            _runNum++;
+            return CP_RecursiveCalc(_mid, _max, _range / 2, _carPosition, _laneLength, _lane, _minThreshold, _runNum);
         }
 
     }
-
-    public float Adjust(float _value, float _range, float _laneLength)
-    {
-        return (_value + _range) % _laneLength;
-    }
-    
 
     public float DistanceToLane(float _searchPosition, Vector3 _carPosition, int _lane)
     {
@@ -108,80 +125,74 @@ public class PathFunctions
 
         return Vector3.Distance(_carPosition, _lanePosition);
     }
+    #endregion
 
 
+    #region Path Generation
 
-
-    // ------------------------------------------------------------------------------------------------------------
-    // RECURSIVE PATH CALCULATOR BELOW
-    // ------------------------------------------------------------------------------------------------------------
-
-
-
-
-    public float CurveTrial(float _min, float _max, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio)
+    public float C_CurveGenerator(float _xMin, float _xMax, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio, int _runNum = 0)
     {
-        _runNum_rpc = 0;
+        int _searchDivisor = carFunctionsScriptableObject.C_SearchDivisor;
+        int _searchNarrower = carFunctionsScriptableObject.C_SearchNarrower;
+        float _searchThreshold = carFunctionsScriptableObject.C_CurveThreshold;
 
-        float _range = Mathf.Abs(_max - _min);
 
-        if (_range < PathConstants.CURVE_FINDER_THRESHOLD)
+        float _xRange = Mathf.Abs(_xMax - _xMin);
+
+        if (_xRange < _searchThreshold)
         {
-            return _min + (_range / 2);
-        }
+            // Debug.Log(_runNum);
 
-        float[,] _trialsArray = new float[PathConstants.SEARCH_DIVIDED, 2];
+            return _xMin + (_xRange / 2);
+        }
 
 
         int pos = 0;
-        for (int i = 0; i < PathConstants.SEARCH_DIVIDED; i++)
+        for (int i = 0; i < _searchDivisor; i++)
         {
             
 
-            float _value = _min + i * (_range / PathConstants.SEARCH_DIVIDED);
-            float _fValue = CurveCalc(_value, A, D, _direction_A, _direction_B, _magRatio);
-            _trialsArray[i, 0] = _value;
-            _trialsArray[i, 1] = _fValue;
+            float _xValue = _xMin + i * (_xRange / _searchDivisor);
+            float _yValue = C_CurveSetup(_xValue, A, D, _direction_A, _direction_B, _magRatio);
+            C_trialsArray[i, 0] = _xValue;
+            C_trialsArray[i, 1] = _yValue;
 
             // Get min in pos
-            if (_trialsArray[i, 1] < _trialsArray[pos, 1]) { pos = i; }
+            if (C_trialsArray[i, 1] < C_trialsArray[pos, 1]) { pos = i; }
 
-            nodeList.Clear();
         }
 
-        int _divisor = 8;
+        float _xMinNew = C_trialsArray[pos, 0] - (_xRange / _searchNarrower);
 
-        float _newMin = _trialsArray[pos, 0] - (_range / _divisor);
+        if (_xMinNew < 0) { _xMinNew = 0; }
 
-        if (_newMin < 0) { _newMin = 0; }
+        float _xMaxNew = C_trialsArray[pos, 0] + (_xRange / _searchNarrower);
 
-        float _newMax = _trialsArray[pos, 0] + (_range / _divisor);
+        _runNum++;
 
-        _runNum_rpc++;
-
-        return CurveTrial(_newMin, _newMax, A, D, _direction_A, _direction_B, _magRatio);
+        return C_CurveGenerator(_xMinNew, _xMaxNew, A, D, _direction_A, _direction_B, _magRatio, _runNum);
 
     }
 
     // Set up curves to be tested
-    public float CurveCalc(float _factor, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio)
+    public float C_CurveSetup(float _factor, Vector3 A, Vector3 D, Vector3 _direction_A, Vector3 _direction_B, float _magRatio)
     {
 
         Vector3 Trial_A = A + (_direction_A * _magRatio * _factor);
         Vector3 Trial_B = D + (_direction_B * _factor);
 
-        return TestCurve(A, Trial_A, Trial_B, D);
+        return C_TestCurve(A, Trial_A, Trial_B, D);
     }
 
     // Test each curve
-    public float TestCurve(Vector3 A, Vector3 B, Vector3 C, Vector3 D)
+    public float C_TestCurve(Vector3 A, Vector3 B, Vector3 C, Vector3 D)
     {
 
-        Vector3 _oldPoint = new Vector3();
+        Vector3 _oldPoint;
         Vector3 _point = new Vector3();
 
-
-        for (float t = 0; t <= 1; t += PathConstants.CURVE_FINDER_INCREMENT)
+        int i = 0;
+        for (float t = 0; t <= 1; t += carFunctionsScriptableObject.CurveIncrement)
         {
             _oldPoint = _point;
 
@@ -189,77 +200,179 @@ public class PathFunctions
                 3 * Mathf.Pow(1 - t, 2) * t * B +
                 3 * (1 - t) * Mathf.Pow(t, 2) * C +
                 Mathf.Pow(t, 3) * D;
+            
+            float _distance = Vector3.Distance(_oldPoint, _point);
 
+            C_nodeArray[i] = _distance;
 
-
-            if (t != 0)
-            {
-                float _distance = Vector3.Distance(_oldPoint, _point);
-                nodeList.Add(_distance);
-            }
-
-
+            i++;
         }
 
         // The smallest distance between two nodes
-        return 1 / nodeList.Min();
+        return 1 / C_nodeArray.Min();
 
     }
+    #endregion
 
 
+    #region Movement Calculator
 
-    // ------------------------------------------------------------------------------------------------------------
-    // MOVEMENT CALCULATOR BELOW
-    // ------------------------------------------------------------------------------------------------------------
-
-
-
-    public void MoveAlongPath(float dt, float L, float _t0, Vector3 _v1, Vector3 _v2, Vector3 _v3, Vector3 _heading, Vector3 _position)
-    {
-
-        float lag_threshold = 0.005f;
-        //If we are experiencing a lag spike, iterate over a number of things
-      
-        //Add one, for min case
-        int lag_runs = (int)Mathf.Round(dt / lag_threshold);
-
-        if (lag_runs < 1)
-            lag_runs = 1;
-
-        float L_total = L;
-
-        L /= lag_runs;
-
-        for (int i = 0; i < lag_runs; i++)
-        {
-            //Update t0, based on the length of the movement and the bezier curve
-            _t0 = T_Update(L, _t0, _v1, _v2, _v3);
-
-            //Update new position pointing direction 
-            _heading = Bezier_Heading(_t0, _v1, _v2, _v3);
-
-            //Update carposition
-            _position += _heading * L;
-        }
-    }
-
-    public float T_Update(float L, float t, Vector3 v1, Vector3 v2, Vector3 v3)
+    public float MAP_TimerUpdate(float L, float t, Vector3 v1, Vector3 v2, Vector3 v3)
     {
         // float t_update = t + L / Vector3.Magnitude((Mathf.Pow(t, 2) * v1) + (t * v2 + v3));
-        float t_update = t + L / Vector3.Magnitude(Mathf.Pow(t, 2) * v1 + t * v2 + v3);
+        return t + L / Vector3.Magnitude(Mathf.Pow(t, 2) * v1 + t * v2 + v3);
 
-        return t_update;
     }
+    #endregion
 
-    public Vector3 Bezier_Heading(float t, Vector3 v1, Vector3 v2, Vector3 v3)
+
+    #region CurveAnalysis
+
+    // returns float array. [0] = Result (x), [1] = runNum
+    // _searchDivisor: How many searches between _xMin and _xMax do we conduct each run.
+    // _searchNarrower: How much smaller do we make the next run? ( 1 / value )
+    // _searchThreshold: Minimum _xRange when we abort search
+    public float CA_RecursiveDivided(float _xMin, float _xMax, Vector3 _v1, Vector3 _v2, Vector3 _v3, int _runNum = 0, float _xLowerBound = 0, float _xUpperBound = 0)
     {
-        //Find direction of movement given t (0 < t < 1), and the three vectors for the quadratic curve calculated above. This is the derivative at a point (t) on the curve.
-        Vector3 DmDt = (Mathf.Pow(t, 2) * v1) + (t * v2) + v3;
 
+        int _searchDivisor = carFunctionsScriptableObject.CA_SearchDivisor;
+        int _searchNarrower = carFunctionsScriptableObject.CA_SearchNarrower;
+        float _searchThreshold = carFunctionsScriptableObject.CA_CurveThreshold;
 
-        //Heading vector
-        return Vector3.Normalize(DmDt);
+        if (_runNum == 0)
+        {
+            _xLowerBound = _xMin;
+            _xUpperBound = _xMax;
+        }
+
+        float _xRange = Mathf.Abs(_xMax - _xMin);
+
+        if (_xRange < _searchThreshold)
+        {
+            //Debug.Log(_xMin);
+            return _xMin + (_xRange / 2);
+                
+        }
+
+        int pos = 0;
+        for (int i = 0; i < _searchDivisor; i++)
+        {
+
+            float _xValue = _xMin + i * (_xRange / _searchDivisor) + (_xRange / (_searchDivisor * 2));
+            float _yValue = CurvatureAt(_xValue, _v1, _v2, _v3);
+
+            CA_trialsArray[i, 0] = _xValue;
+            CA_trialsArray[i, 1] = _yValue;
+
+            // Get min in pos
+            if (CA_trialsArray[i, 1] > CA_trialsArray[pos, 1]) { pos = i; }
+        }
+
+        // Narrow down our _xRange
+        float _xNewMin = CA_trialsArray[pos, 0] - (_xRange / _searchNarrower);
+
+        if (_xNewMin < _xLowerBound) { _xNewMin = _xLowerBound; }
+
+        float _xNewMax = CA_trialsArray[pos, 0] + (_xRange / _searchNarrower);
+
+        if (_xNewMax > _xUpperBound) { _xNewMax = _xUpperBound; }
+
+        _runNum++;
+
+        return CA_RecursiveDivided(_xNewMin, _xNewMax, _v1, _v2, _v3, _runNum, _xLowerBound, _xUpperBound);
 
     }
 
+    public void CurveAnalysis(Vector3 _v1, Vector3 _v2, Vector3 _v3, float _velocity, float _frictionCoefficient)
+    {
+
+        float _lowerBound = 0f;
+        float _upperBound = 1f;
+
+        float _result = CA_RecursiveDivided(_lowerBound, _upperBound, _v1, _v2, _v3);
+
+        float _maxCurve = AverageCurvatureAt(_result, 0.05f, _v1, _v2, _v3);
+
+
+        // Given by: https://shorturl.at/cCM37
+        // Note: mass has fallen out of the calculation 
+        // maxVelocity = SQRT ( FrictionCoefficient * g * radius )
+
+        // radius is our result, so velocity ^ 2 / _frictionCoefficient ~ result
+
+        float _leftSide = Mathf.Pow(_velocity, 2) / _frictionCoefficient;
+        float _rightSide = RunSettings.MAX_TURN_RADIUS_CONSTANT / _maxCurve;
+
+        // Debug.Log("leftside  " + _leftSide + "  rightside  " + _rightSide);
+
+        if (_leftSide > _rightSide)
+        {
+            Debug.Log("SKID");
+        }
+        
+
+    }
+
+    public float AverageCurvatureAt(float t, float _range, Vector3 v1, Vector3 v2, Vector3 v3)
+    {
+
+        float _xMin = t - (_range / 2);
+        float _xMax = t + (_range / 2);
+
+        if (_xMin < 0f)
+
+        {
+            _xMin = 0f;
+
+        }
+        else if (_xMax > 1)
+        {
+
+            _xMin = 1 - _range;
+        }
+
+        int _divisor = 10;
+
+        for (int i = 0; i < _divisor; i++)
+        {
+
+            float _xValue = _xMin + i * (_range / _divisor) + (_range / (_divisor * 2));
+
+            // Debug.Log("x  " + _xValue);
+
+            AC_resultsArray[i] = CurvatureAt(_xValue, v1, v2, v3);
+
+            // Debug.Log("y  " + _resultsArray[i]);
+
+        }
+
+        return AC_resultsArray.Average();
+    }
+
+    public float CurvatureAt(float t, Vector3 v1, Vector3 v2, Vector3 v3)
+    {
+        Vector3 d1 = BezFirstDerivative(t, v1, v2, v3);
+        Vector3 d2 = BezSecondDerivative(t, v1, v2, v3);
+
+        return BezCurvature(d1, d2);
+    }
+    #endregion
+
+
+    #region General Calculations
+    public Vector3 BezFirstDerivative(float t, Vector3 v1, Vector3 v2, Vector3 v3)
+    {
+        return (Mathf.Pow(t, 2) * v1) + (t * v2) + v3;
+    }
+
+    public Vector3 BezSecondDerivative(float t, Vector3 v1, Vector3 v2, Vector3 v3)
+    {
+        return (2 * t * v1) + v2;
+    }
+
+    public float BezCurvature(Vector3 d1, Vector3 d2)
+    {
+        return Vector3.Magnitude(Vector3.Cross(d1, d2)) / (Mathf.Pow(Vector3.Magnitude(d1), 3));
+    }
+    #endregion
 }

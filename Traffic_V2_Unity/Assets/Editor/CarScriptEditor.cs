@@ -38,7 +38,7 @@ public class CarScriptEditor : Editor
 
         Handles.color = Color.white;
 
-        for (float t = 0; t <= 1; t += PathConstants.CURVE_FINDER_INCREMENT)
+        for (float t = 0; t <= 1; t += pathEditorHelper.CurveIncrement)
         {
 
 

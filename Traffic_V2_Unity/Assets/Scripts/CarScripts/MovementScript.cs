@@ -15,7 +15,7 @@ public class MovementScript
     {
 
         
-        if (Velocity < 45)
+        if (Velocity < 25)
         {
             Velocity += _acceleration * dt;
         }

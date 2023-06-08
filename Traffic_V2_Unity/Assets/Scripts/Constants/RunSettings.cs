@@ -20,7 +20,7 @@ public static class RunSettings
 
     public static float RENDER_DIST_MULTIPLIER { get; } = 5f; // per meter/second
 
-
+    public static float MAX_TURN_RADIUS_CONSTANT { get; } = 12f; //Computed using the physics problem online
 
 
 }

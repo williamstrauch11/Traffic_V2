@@ -19,7 +19,7 @@ public class CarScript : MonoBehaviour
     {
         // References fill
         laneManagerScript = GameObject.FindGameObjectWithTag("LaneManager").GetComponent<LaneManagerScript>();
-        carScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/CarScriptableObject")) as CarScriptableObject;
+        carScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/DefaultCar")) as CarScriptableObject;
         boxCollider = this.gameObject.GetComponent<BoxCollider>();
 
         // Spawn other scripts
@@ -31,7 +31,7 @@ public class CarScript : MonoBehaviour
     #region Run
     public void Run(float dt)
     {
-
+        
         // Get acceleration
         float _acceleration = brainScript.accelerationScript.OnFrame(dt);
 
@@ -62,7 +62,7 @@ public class CarScript : MonoBehaviour
         // Set starting position in DirectionScript
         float _startLanePosition = PublicFunctions.SpawnPosition(laneManagerScript.LaneLengths[Lane], CarID);
 
-        brainScript.directionScript.SpawnSet(Lane, _startLanePosition);
+        brainScript.directionScript.PutOnLane(Lane, _startLanePosition);
 
         // Start ComputationCoroutine
         StartCoroutine(BrainCoroutine());

@@ -1,8 +1,10 @@
 ﻿<Properties StartupConfiguration="{B60701E1-E401-1FAA-2663-593BE06F3E31}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Curve1.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Editor/FollowerScriptEditor.cs">
     <Files>
       <File FileName="Assets/Curve.cs" />
-      <File FileName="Assets/Curve1.cs" Line="169" Column="52" />
+      <File FileName="Assets/Curve1.cs" Line="183" Column="6" />
+      <File FileName="Assets/FollowerScript.cs" Line="156" Column="6" />
+      <File FileName="Assets/Editor/FollowerScriptEditor.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MultiItemStartupConfigurations />

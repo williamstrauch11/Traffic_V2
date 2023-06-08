@@ -6,8 +6,8 @@ using UnityEngine;
 public class LaneSetupScriptableObject : ScriptableObject
 {
     [Header("CircularTrack")]
-    public float NodeMultiplier = 0.5f; // Nodes per unit of radius
-    public float TextureTilingMultiplier = 0.2f;
-    public float InnerCircleRadius = 100f;
+    public float NodeMultiplier; // Nodes per unit of radius
+    public float TextureTilingMultiplier;
+    public float InnerCircleRadius;
 
 }

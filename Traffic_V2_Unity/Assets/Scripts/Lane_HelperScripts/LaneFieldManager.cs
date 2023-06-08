@@ -24,7 +24,7 @@ public class LaneFieldManager
     {
         LaneNum = _laneNum;
 
-        laneSetupScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/LaneSetupScriptableObject")) as LaneSetupScriptableObject;
+        laneSetupScriptableObject = ScriptableObject.Instantiate(Resources.Load("ScriptableObjects/LaneSetup1")) as LaneSetupScriptableObject;
 
         SetParameters();
 

@@ -16,6 +16,11 @@ public class Curve1 : MonoBehaviour
 
     private int runNum;
 
+    public Vector3 Node1;
+    public Vector3 Node2;
+    public Vector3 Node3;
+    public Vector3 Node4;
+
     private void OnDrawGizmos()
     {
 
@@ -52,6 +57,13 @@ public class Curve1 : MonoBehaviour
         Vector3 C = D + (Direction_B * FinalDistance);
 
         nodeList.Clear();
+
+        Node1 = A;
+        Node2 = B;
+        Node3 = C;
+        Node4 = D;
+
+        // Debug.Log(Node1);
 
         CurveDraw(A, B, C, D);
 
@@ -165,8 +177,7 @@ public class Curve1 : MonoBehaviour
             nodeList.Add(_distance);
 
             Gizmos.DrawWireSphere(_point, 0.1f);
-            
-            Debug.Log(1 / nodeList.Min()/ increment);
+           
 
         }
     }

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64cbda5fe16ef41ddb20ee001469f3cc, type: 3}
+  m_Name: DefaultCarFunctions
+  m_EditorClassIdentifier: 
+  LagThreshold: 0.0005
+  MaxPathTravel: 1
+  PointOnLaneThreshold: 0.2
+  LaneJump: 150
+  CurveFinderLimiter: 6
+  C_SearchDivisor: 10
+  C_SearchNarrower: 8
+  C_CurveThreshold: 0.03
+  CurveIncrement: 0.01
+  CA_SearchDivisor: 10
+  CA_SearchNarrower: 8
+  CA_CurveThreshold: 0.03
+  AC_Range: 0.05
+  AC_Divisor: 10
