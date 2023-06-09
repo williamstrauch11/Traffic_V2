@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: DefaultCarFunctions
   m_EditorClassIdentifier: 
   LagThreshold: 0.0005
-  MaxPathTravel: 1
+  MaxPathTravel: 0.99
   PointOnLaneThreshold: 0.2
-  LaneJump: 150
+  LaneJump: 128.7
   CurveFinderLimiter: 6
   C_SearchDivisor: 10
   C_SearchNarrower: 8

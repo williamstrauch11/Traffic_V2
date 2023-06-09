@@ -1,14 +1,20 @@
 ﻿<Properties StartupConfiguration="{FE592BB4-B644-CF31-0F38-70BA25B151AC}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CarScripts/Brain/Direction/DirectionScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/CarScripts/Brain/Vision/VisionScript.cs">
     <Files>
-      <File FileName="Assets/Scripts/CarScripts/Brain/Direction/DirectionScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/CarScripts/CarScript.cs" Line="64" Column="1" />
+      <File FileName="Assets/Scripts/CarScripts/Brain/BrainScript.cs" Line="31" Column="2" />
+      <File FileName="Assets/Scripts/ScriptableObjects/CarScriptableObject.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/CarScripts/Brain/Vision/VisionScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/CarScripts/Brain/Vision/VisionDataScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Editor/VisionEditor.cs" Line="27" Column="5" />
+      <File FileName="Assets/Scripts/EditorHelperScripts/VisionEditorHelper.cs" Line="6" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="0df7d602-3fc0-4fd6-af7d-2c02cc58a911" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="b111d7ec-75d4-42cb-b567-4164fb595d3a" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

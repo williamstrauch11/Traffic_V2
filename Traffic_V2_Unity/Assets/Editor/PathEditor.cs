@@ -6,7 +6,7 @@ using UnityEngine;
 
 [CustomEditor(typeof(CarScript))]
 
-public class CarScriptEditor : Editor
+public class PathEditor : Editor
 {
     // References
     PathEditorHelper pathEditorHelper;
@@ -22,8 +22,6 @@ public class CarScriptEditor : Editor
         //'target' here seems local- not to be confused with the local target used in FieldofView.cs
         CarScript car = (CarScript)target;
 
-        // Handles.DrawWireArc(car.brainScript.directionScript.Position, Vector3.forward, Vector3.right, 360, 50);
-
         Vector3 A = car.brainScript.directionScript.Path_Anchor_1;
         Vector3 B = car.brainScript.directionScript.Path_Direction_1;
         Vector3 C = car.brainScript.directionScript.Path_Direction_2;
@@ -33,6 +31,7 @@ public class CarScriptEditor : Editor
         NodeDraw(A, B, C, D);
     }
 
+    #region Path Functions
     public void CurveDraw(Vector3 A, Vector3 B, Vector3 C, Vector3 D)
     {
 
@@ -63,5 +62,5 @@ public class CarScriptEditor : Editor
         Handles.DrawWireCube(C, new Vector3(1, 1, 1));
         Handles.DrawWireCube(D, new Vector3(1, 1, 1));
     }
-
+    #endregion
 }
